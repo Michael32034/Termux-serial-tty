@@ -77,7 +77,7 @@ typedef enum status_enum {
 	read_pipe_ok  = 1,
 	write_pipe_ok = 2,
 	usb_dev_ok    = 4,
-	alles_gute    = read_pipe_ok | write_pipe_ok | usb_dev_ok
+	all_ok    = read_pipe_ok | write_pipe_ok | usb_dev_ok
 } status_t;
 
 /** Device address in terms bus ID, device number.							*/
@@ -241,6 +241,7 @@ static constexpr eia_tia_232_info _115200_8N1n {115200,8,none,one,none_};
 static constexpr eia_tia_232_info _115200_8N1r {115200,8,none,one,rts_cts};
 static constexpr eia_tia_232_info  _19200_8N1n { 19200,8,none,one,none_};
 static constexpr eia_tia_232_info  _19200_8N1r { 19200,8,none,one,rts_cts};
+static constexpr eia_tia_232_info  _9600_8N1n { 9600,8,none,one,none_};
 
 /**
  * USBUART API facade class

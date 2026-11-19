@@ -46,13 +46,13 @@ using namespace usbuart;
 using namespace std::chrono;
 
 static inline bool is_good(int status) noexcept {
-	return status == status_t::alles_gute;
+	return status == status_t::all_ok;
 }
 
 static inline bool is_usable(int status) noexcept {
 	return	status == (status_t::usb_dev_ok | status_t::read_pipe_ok)  ||
 			status == (status_t::usb_dev_ok | status_t::write_pipe_ok) ||
-			status ==  status_t::alles_gute;
+			status ==  status_t::all_ok;
 }
 
 int main(int argc, char** argv) {
