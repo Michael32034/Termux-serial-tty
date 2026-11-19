@@ -150,3 +150,6 @@ ptyserial: examples/ptyserial.o # $(TARGET-DIR)/libusbuart.so
 	@echo "    $(BOLD)ld$(NORM) " $(notdir $@)
 	$(LD) $(LDFLAGS)  -o $@ $^ -L./bin/ -lusbuart -lusb-1.0 $(shell pkg-config --libs libusb-1.0) 
 
+ptyport: examples/ptyport.o # $(TARGET-DIR)/libusbuart.so
+	@echo "    $(BOLD)ld$(NORM) " $(notdir $@)
+	$(LD) $(LDFLAGS)  -o $@ $^ -L./bin/ -lusbuart -lusb-1.0 $(shell pkg-config --libs libusb-1.0) 
