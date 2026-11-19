@@ -65,7 +65,6 @@ CPPFLAGS += 																\
   -Wextra																	\
   -fPIC																	\
   -O0																		\
-  -std=c++1y  																\
   #-fmessage-length=0														\
   #-ffunction-sections  														\
   #-fdata-sections															\
@@ -74,14 +73,15 @@ CPPFLAGS_DEBUG += 																\
   $(addprefix -I,$(INCLUDES))												\
   $(addprefix -D,$(CXX-DEFS))												\
   $(if $(V),-v,)															\
+  -std=c++17  														\
   -Wall																		\
   -Wextra																	\
   -O0																		\
   -fPIC																	\
-  -std=c++1y  																\
   #-fmessage-length=0														\
   #-ffunction-sections  														\
   #-fdata-sections															\
+  -std=c++17  														\
   #-g \
 
 CFLAGS += 																	\

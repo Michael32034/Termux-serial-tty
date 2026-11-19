@@ -115,9 +115,9 @@ template<typename T>
 struct transaction {
 	typedef typename conditional<
 		is_class<T>::value, destructor<T>, freer<T> >::type cleanup;
-	inline transaction(bool& result, void* t) throw(error_t)
+	inline transaction(bool& result, void* t)
 	  : transaction(result, (T*) t) {}
-	inline transaction(bool& result, T* t) throw(error_t)
+	inline transaction(bool& result, T* t)
 	  : resource(t), success(result) {
 		if( resource == nullptr ) {
 			result = false;
@@ -141,13 +141,13 @@ static constexpr timeval maketimeval(int ms) noexcept {
 }
 
 static inline void throw_if(bool bad, const char * tag, const char* msg)
-	throw(error_t) {
+{
 	if( ! bad ) return;
 	log.e(tag, "invalid parameter %s", msg);
 	throw error_t::invalid_param;
 }
 
-static void validate(const eia_tia_232_info& i) throw(error_t) {
+static void validate(const eia_tia_232_info& i) {
 	throw_if(i.databits < 5 || i.databits > 9, __, "databits");
 	throw_if(i.parity   > parity_t::space, __, "parity");
 	throw_if(i.stopbits > stop_bits_t::two, __, "stopbits");
@@ -155,7 +155,7 @@ static void validate(const eia_tia_232_info& i) throw(error_t) {
 	throw_if(i.baudrate == 0, __, "flowcontrol");
 }
 
-static void validate(const channel& ch) throw(error_t) {
+static void validate(const channel& ch) {
 	throw_if(fcntl(ch.fd_read, F_GETFD)<0, __, "fd_read");
 	throw_if(fcntl(ch.fd_write, F_GETFD)<0, __, "fd_write");
 }
@@ -173,7 +173,7 @@ public:
 		util::erase(list, factory);
 	}
 	inline driver* create(libusb_device_handle* dev,
-			uint8_t id) const throw(error_t){
+			uint8_t id) const{
 		lock_guard<mutex> lock(update);
 		for(auto & factory : list) {
 			driver* drv = factory->create(dev, id);
@@ -204,7 +204,7 @@ driver::factory::~factory() noexcept {
 }
 
 driver* driver::factory::create(libusb_device_handle* dev, uint8_t id)
-														const throw(error_t) {
+														const {
 	return registrar().create(dev, id);
 }
 
@@ -215,7 +215,7 @@ device_id driver::factory::devid(libusb_device_handle* handle) noexcept {
 	return { desc.idVendor, desc.idProduct, 0 };
 }
 
-void throw_error(const char* tag, int err) throw(error_t) {
+void throw_error(const char* tag, int err) {
 //	log.d(tag,"err=%d",err);
 	switch(err < 0 ? -err : err) {
 	case EAGAIN:
@@ -232,7 +232,7 @@ void throw_error(const char* tag, int err) throw(error_t) {
 	}
 }
 
-static inline void setnonblock(int fd) throw(error_t) {
+static inline void setnonblock(int fd) {
 	int flags = fcntl(fd, F_GETFL, 0);
 	if( flags < 0 ) throw error_t::fcntl_error;
 	if( fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0 )
@@ -265,7 +265,7 @@ public:
 	  , device_hangup(false)
 	  { set_nonblocking(); }
 
-	void init() throw(error_t)  {
+	void init()  {
 		bool success = true;
 		transaction<unsigned char>  readbuff0(success, malloc(chunksize()));
 		transaction<unsigned char>  readbuff1(success, malloc(chunksize()));
@@ -341,8 +341,8 @@ public:
 		if( pipeout_ready ) writepipe(current);
 	}
 
-	inline void reset() throw(error_t) { drv->reset(); }
-	inline void sendbreak() throw(error_t) { drv->sendbreak(); }
+	inline void reset() { drv->reset(); }
+	inline void sendbreak() { drv->sendbreak(); }
 
 	inline int status() noexcept {
 		return
@@ -417,7 +417,7 @@ public:
 			poll_request(_writefd(), false);
 	}
 
-	void set_nonblocking() throw(error_t) {
+	void set_nonblocking() {
 		setnonblock(_readfd());
 		setnonblock(_writefd());
 	}
@@ -612,7 +612,7 @@ protected:
 
 class pipe_channel : public file_channel {
 public:
-	inline pipe_channel(context::backend& _owner, channel& ch, driver* _drv) throw(error_t)
+	inline pipe_channel(context::backend& _owner, channel& ch, driver* _drv)
 	  : file_channel(_owner
 	  , bipipe(ch), _drv)
 	  , exrd(ch.fd_read)
@@ -631,7 +631,7 @@ private:
 	int exrd;
 	int exrw;
 	struct bipipe : channel {
-		inline bipipe(channel& ex) throw(error_t) {
+		inline bipipe(channel& ex) {
 			int a[2], b[2];
 			if( ::pipe(a) ) throw error_t::pipe_error;
 			if( ::pipe(b) ) {
@@ -653,7 +653,7 @@ private:
 
 class context::backend {
 public:
-	backend() throw(error_t) {
+	backend() {
 		libusb_set_option(NULL, LIBUSB_OPTION_WEAK_AUTHORITY);
 		libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY);
 
@@ -699,14 +699,14 @@ public:
 	}
 
 	inline int attach(device_id id, channel ch,
-			const eia_tia_232_info& pi) throw(error_t) {
+			const eia_tia_232_info& pi) {
 		validate(pi);
 		validate(ch);
 		return attach(find(id), id.ifc, ch, pi);
 	}
 
 	inline int attach(device_addr addr, channel ch,
-			const eia_tia_232_info& pi) throw(error_t) {
+			const eia_tia_232_info& pi) {
 		validate(pi);
 		validate(ch);
 		return attach(find(addr), addr.ifc, ch, pi);
@@ -726,7 +726,7 @@ public:
 	}
 
 	inline int attach(int fd, uint8_t ifc, channel ch,
-			const eia_tia_232_info& pi) throw(error_t) {
+			const eia_tia_232_info& pi) {
 		validate(pi);
 		validate(ch);
 		libusb_device_handle *handle;
@@ -734,7 +734,7 @@ public:
 	}
 
 	int attach(libusb_device* dev, uint8_t ifc, channel& ch,
-			const eia_tia_232_info& pi, bool pipes = false, libusb_device_handle *handle = NULL) throw(error_t) {
+			const eia_tia_232_info& pi, bool pipes = false, libusb_device_handle *handle = NULL) {
 		bool ok1 = false, ok2 = false;
 		if( dev == nullptr ) return -error_t::no_device;
 
@@ -753,19 +753,19 @@ public:
 
 
 	inline int pipe(device_id id, channel& ch,
-			const eia_tia_232_info& pi) throw(error_t) {
+			const eia_tia_232_info& pi) {
 		validate(pi);
 		return attach(find(id), id.ifc, ch, pi, true);
 	}
 
 	inline int pipe(device_addr ba, channel& ch,
-			const eia_tia_232_info& pi) throw(error_t) {
+			const eia_tia_232_info& pi) {
 		validate(pi);
 		return attach(find(ba), ba.ifc, ch, pi, true);
 	}
 
 	inline int pipe(int fd, channel& ch,
-			const eia_tia_232_info& pi) throw(error_t) {
+			const eia_tia_232_info& pi) {
 		validate(pi);
 		libusb_device_handle *handle;
 		return attach(open_usb_fd(fd, &handle), 0, ch, pi, true, handle);
@@ -787,13 +787,13 @@ public:
 	}
 
 
-	int handle_events(int timeout) throw(error_t) {
+	int handle_events(int timeout) {
 		if( poll_list.size() == 0 ) return handle_libusb_events(timeout);
 		int res = poll_events(timeout);
 		return res >= 0 ? handle_libusb_events(timeout) : res;
 	}
 
-	int poll_events(int timeout) throw(error_t) {
+	int poll_events(int timeout) {
 		if( poll_list.size() == 0 ) return 0;
 		vector<pollfd> pollfd_list(poll_list);
 		append_poll_list(pollfd_list);
@@ -843,7 +843,7 @@ public:
 		});
 	}
 
-	driver* create(libusb_device* dev, uint8_t id, libusb_device_handle* devh) throw(error_t) {
+	driver* create(libusb_device* dev, uint8_t id, libusb_device_handle* devh) {
 		if (devh == nullptr) {
 			int res = libusb_open(dev, &devh);
 			libusb_unref_device(dev); /* it was refed in find */
@@ -868,7 +868,7 @@ public:
 		return result;
 	}
 
-	libusb_device* find(function<bool(libusb_device*)> match) const throw(error_t) {
+	libusb_device* find(function<bool(libusb_device*)> match) const {
 		libusb_device** list = nullptr;
 		libusb_device* found = nullptr;
 		int n = libusb_get_device_list(ctx, &list);
@@ -972,7 +972,7 @@ inline int safe(const char* tag,function<int()> unsafe) noexcept {
 
 /****************************************************************************/
 /** context constructor allocates a libusb context 							*/
-context::context() throw(error_t) : priv(new context::backend()) {}
+context::context() : priv(new context::backend()) {}
 
 context::~context() noexcept {
 	delete priv;
