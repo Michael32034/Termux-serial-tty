@@ -51,58 +51,58 @@ OBJS :=																		\
   ch34x.o																	\
   core.o																	\
   ftdi.o																	\
-  generic.o																	\
+  generic.o																\
   log.o																		\
-  pl2303.o																	\
+  pl2303.o																\
 
 
-CPPFLAGS += 																\
-  $(addprefix -I,$(INCLUDES))												\
-  $(shell pkg-config --cflags libusb-1.0)                                   \
-  $(addprefix -D,$(CXX-DEFS))												\
-  $(if $(V),-v,)															\
+CPPFLAGS += 															\
+  $(addprefix -I,$(INCLUDES))							\
+  $(shell pkg-config --cflags libusb-1.0) \
+  $(addprefix -D,$(CXX-DEFS))							\
+  $(if $(V),-v,)													\
   -Wall																		\
   -Wextra																	\
-  -fPIC																	\
-  -O0																		\
-  #-fmessage-length=0														\
-  #-ffunction-sections  														\
-  #-fdata-sections															\
-
-CPPFLAGS_DEBUG += 																\
-  $(addprefix -I,$(INCLUDES))												\
-  $(addprefix -D,$(CXX-DEFS))												\
-  $(if $(V),-v,)															\
+  -fPIC																	  \
+  -O0																		  \
   -std=c++17  														\
+  #-fmessage-length=0											\
+  #-ffunction-sections  									\
+  #-fdata-sections												\
+
+CPPFLAGS_DEBUG += 												\
+  $(addprefix -I,$(INCLUDES))							\
+  $(addprefix -D,$(CXX-DEFS))							\
+  $(if $(V),-v,)													\
   -Wall																		\
   -Wextra																	\
-  -O0																		\
-  -fPIC																	\
-  #-fmessage-length=0														\
-  #-ffunction-sections  														\
-  #-fdata-sections															\
+  -O0																		  \
+  -fPIC																	  \
   -std=c++17  														\
+  #-fmessage-length=0											\
+  #-ffunction-sections  									\
+  #-fdata-sections												\
   #-g \
 
-CFLAGS += 																	\
-  $(addprefix -I,$(INCLUDES))												\
-  $(shell pkg-config --cflags libusb-1.0)                                   \
-  $(addprefix -D,$(CXX-DEFS))												\
-  $(if $(V),-v,)															\
+CFLAGS += 															  \
+  $(addprefix -I,$(INCLUDES))							\
+  $(shell pkg-config --cflags libusb-1.0) \
+  $(addprefix -D,$(CXX-DEFS))						  \
+  $(if $(V),-v,)													\
   -Wall																		\
-  -fPIC																	\
-  -O0																		\
-  #-ffunction-sections 														\
-  #-fdata-sections 															\
-  #-std=gnu99 																\
+  -fPIC																	  \
+  -O0																		  \
+  #-ffunction-sections 										\
+  #-fdata-sections 												\
+  #-std=gnu99 														\
 
 
-LDFLAGS +=																	\
-  -s 				 												\
+LDFLAGS +=																\
+  -s 				 												      \
 
 
-LDFLAGS_DEBUG +=																	\
-   				 												\
+LDFLAGS_DEBUG +=													\
+   				 												        \
 
 vpath %.cpp $(subst $(eval) ,:,$(SRC-DIRS))
 vpath %.c   $(subst $(eval) ,:,$(SRC-DIRS))
@@ -148,5 +148,5 @@ test: examples/test.o
 
 ptyserial: examples/ptyserial.o # $(TARGET-DIR)/libusbuart.so
 	@echo "    $(BOLD)ld$(NORM) " $(notdir $@)
-	$(LD) $(LDFLAGS)  -o $@ $^ -lusbuart -lusb-1.0 $(shell pkg-config --libs libusb-1.0) 
+	$(LD) $(LDFLAGS)  -o $@ $^ -L./bin/ -lusbuart -lusb-1.0 $(shell pkg-config --libs libusb-1.0) 
 
